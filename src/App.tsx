@@ -1,26 +1,56 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer } from "react";
+
+type State = {
+  username: "";
+  email: "";
+  password: "";
+};
+
+type Action = {
+  type: string;
+  payload: {
+    inputName: keyof State;
+    value: string;
+  };
+};
+
+// useReducerのみを使用してフォーム状態をまとめて管理。
+// inputのonchangeは一つ使用し。reducerは純粋関数
+function formReducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "change":
+      console.log("state", state);
+      return {
+        ...state,
+        [action.payload.inputName]: action.payload.value,
+      };
+
+    default:
+      return state;
+  }
+}
+
+const initialValue: State = {
+  username: "",
+  email: "",
+  password: "",
+};
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+  const [state, dispatch] = useReducer(formReducer, initialValue);
+
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const target = e.target;
+    console.log("inputname", target.name);
+    console.log("value", target.value);
+
+    dispatch({
+      type: "change",
+      payload: { inputName: target.name as keyof State, value: target.value },
+    });
+  };
+
+  return <div></div>;
 }
 
 export default App;
