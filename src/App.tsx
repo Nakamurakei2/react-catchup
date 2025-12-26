@@ -50,7 +50,30 @@ function App() {
     });
   };
 
-  return <div></div>;
+  return (
+    <div>
+      <input
+        type="text"
+        name="username"
+        value={state.username}
+        onChange={(e) => onChange(e)}
+      />
+
+      <input
+        type="email"
+        name="email"
+        value={state.email}
+        onChange={(e) => onChange(e)}
+      />
+
+      <input
+        type="password"
+        name="password"
+        value={state.password}
+        onChange={(e) => onChange(e)}
+      />
+    </div>
+  );
 }
 
 export default App;
