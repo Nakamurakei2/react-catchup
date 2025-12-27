@@ -321,57 +321,6 @@ function App() {
 }
 ```
 
-## useMemo
-useMemoは、**思い計算結果をキャッシュして、無駄な再計算を防ぐためのフック**。
-→再レンダリングのたびに同じ計算をやり直さないようにするためのもの。
-
-### 構文
-```
-const memorizedValue = useMemo(() => {
-  return result;
-},[依存配列]);
-```
-・第一引数：計算する関数
-・第二引数：依存配列
-  →**これが変わった時にだけ再計算**される。
-
-### useMemo使わない場合の問題
-```
-funtion Example({num}: {num: number}) {
-  const expensive = heacCalc(num); // 毎回実行される
-
-  return <div>{expensive}</div>
-}
-```
-→親が再レンダリングされるたびに`heavyCalc`が再度実行される
-
-### useMemoを使うと
-```
-function Example({num}: {num: number}) {
-  const expensive = useMemo(() => {
-    return heavyCalc(num);
-  }, [num]);
-
-  return <div>{expensive}</div>
-}
-```
-→`num`が変わらない限り再計算されない
-
-### よくある使用シーン
-- 思い計算
-```
-const sortedList = useMemo(() => {
-  return list.sort((a, b) => a - b);
-},[list])
-```
-- オブジェクト/配列の参照を固定したい時
-```
-const options = useMemo(() => ({
-  page: 1,
-  limit: 20,
-}), []);
-```
-
 ## useCallback
 usecallbackは、**関数をメモ化(同じ参照を使い回す)ためのHooks**
 
@@ -487,3 +436,46 @@ const MyComponent = React.memo((props: Props) => {
 
 - 軽いコンポーネント
 　→再レンダリングコストがそもそも低い場合、**memoの比較コストのほうが高くなる**こともある
+
+## useMemo
+useMemoは、**計算結果をキャッシュするHook**
+```
+const value = useMemo(() => 計算, [依存配列]);
+```
+・依存配列が変わらない限り、**前回の計算結果を再利用**
+・再レンダリング自体は防がない
+
+※useMemoを使った方が速い→❌
+
+### 何が嬉しいのか
+- 無駄な「思い計算」防げる
+```
+const total = useMemo(() => {
+  console.log('heavy calc');
+  return numbers.redicer((sum, n) => sum + n, 0);
+}, [numbers]);
+```
+・`numbers`が変わらない限り他のstateが変わっても**計算は実行されない**
+
+### useMemoが効く典型例
+- 思い計算(配列操作・集計)
+`filte / sort / reducer / map`系
+
+```
+const filtered = useMemo(() => {
+  return users.filter(u => 
+    u.name.toLowerCase().includes(search)
+  );
+},[users, search]);
+```
+軽い計算処理の場合はuseMemoの処理コストが上回り、蹴ってパフォーマンスが悪くなる可能性もある。
+
+- 参照が変わると困る値を安定させたい時
+```
+const options = useMemo(() => ({
+  pageSize: 20,
+  sortable: true,
+}), []);
+```
+・毎回`{}`を作ると**別オブジェクト**になり、子コンポーネントやuseEffectで問題になる。
+参照を固定したいオブジェクトに対してuseMemoを使う。
