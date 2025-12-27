@@ -1,77 +1,26 @@
-import React, { useReducer } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
-type State = {
-  username: "";
-  email: "";
-  password: "";
-};
+// function Child({ value }: { value: number }) {
+//   console.log("child render");
+//   return <div>{value}</div>;
+// }
 
-type Action = {
-  type: string;
-  payload: {
-    inputName: keyof State;
-    value: string;
-  };
-};
-
-// useReducerのみを使用してフォーム状態をまとめて管理。
-// inputのonchangeは一つ使用し。reducerは純粋関数
-function formReducer(state: State, action: Action): State {
-  switch (action.type) {
-    case "change":
-      console.log("state", state);
-      return {
-        ...state,
-        [action.payload.inputName]: action.payload.value,
-      };
-
-    default:
-      return state;
-  }
-}
-
-const initialValue: State = {
-  username: "",
-  email: "",
-  password: "",
-};
+const Child = React.memo(({ onClick }: { onClick: () => void }) => {
+  console.log("child render");
+  return <button onClick={onClick}>click</button>;
+});
 
 function App() {
-  const [state, dispatch] = useReducer(formReducer, initialValue);
+  const [count, setCount] = useState(0);
 
-  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const target = e.target;
-    console.log("inputname", target.name);
-    console.log("value", target.value);
-
-    dispatch({
-      type: "change",
-      payload: { inputName: target.name as keyof State, value: target.value },
-    });
-  };
+  const handleClick = useCallback(() => {
+    console.log("clicked");
+  }, []);
 
   return (
     <div>
-      <input
-        type="text"
-        name="username"
-        value={state.username}
-        onChange={(e) => onChange(e)}
-      />
-
-      <input
-        type="email"
-        name="email"
-        value={state.email}
-        onChange={(e) => onChange(e)}
-      />
-
-      <input
-        type="password"
-        name="password"
-        value={state.password}
-        onChange={(e) => onChange(e)}
-      />
+      <button onClick={() => setCount((prev) => prev + 1)}>+</button>
+      <Child onClick={handleClick} />
     </div>
   );
 }
